@@ -5,13 +5,13 @@ import common.enums.Permission;
 import common.utils.PasswordEncoder;
 import common.utils.Validator;
 import server.dao.UserDAO;
-
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class UserManager {
-    private static final Logger logger = Logger.getLogger(UserManager.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
 
     private static UserManager instance;
     private final UserDAO userDAO;
@@ -42,17 +42,17 @@ public class UserManager {
     public String register(String username, String password, Permission permission, User.Profile profile) {
         // 参数检验
         if (!Validator.isValidUsername(username)) {
-            logger.warning("注册失败：用户名格式不正确: " + username);
+            logger.warn("注册失败：用户名格式不正确: {}", username);
             return null;
         }
 
         if (!Validator.isValidPassword(password)) {
-            logger.warning("注册失败：密码复杂度不符合要求");
+            logger.warn("注册失败：密码复杂度不符合要求");
             return null;
         }
 
         if (userDAO.existsByUsername(username)) {
-            logger.warning("用户名已被占用: " + username);
+            logger.warn("用户名已被占用: {}", username);
             return null;
         }
 
@@ -62,10 +62,10 @@ public class UserManager {
         // 保存到数据库
         boolean success = userDAO.save(newUser);
         if (!success) {
-            logger.severe("注册失败：保存用户信息失败");
+            logger.warn("注册失败：保存用户信息失败");
             return null;
         }
-        logger.info("用户注册成功: " + username + ", ID: " + newUser.getId());
+        logger.info("用户注册成功: {}, ID: {}", username, newUser.getId());
         return newUser.getId();
     }
 
@@ -79,29 +79,29 @@ public class UserManager {
     public String login(String username, String password) {
         // 参数验证
         if (username == null || username.trim().isEmpty()) {
-            logger.warning("登录失败：用户名为空");
+            logger.warn("登录失败：用户名为空");
             return null;
         }
         if (password == null || password.isEmpty()) {
-            logger.warning("登录失败：密码为空");
+            logger.warn("登录失败：密码为空");
             return null;
         }
 
         // 2. 查询用户
         User user = userDAO.findByUsername(username);
         if (user == null) {
-            logger.warning("登录失败：用户不存在: " + username);
+            logger.warn("登录失败：用户不存在: {}", username);
             return null;
         }
 
         if (!PasswordEncoder.matches(password, user.getPassword())) {
-            logger.warning("登录失败：密码错误: " + username);
+            logger.warn("登录失败：密码错误: {}", username);
             return null;
         }
 
         // 4. 检查是否已在线
-        if (onlineUserIds.contains(user.getId())) {
-            logger.warning("用户已在线: " + username);
+        if (onlineUserIds.contains(user.getId()) && user.isOnline()) {
+            logger.warn("用户已在线: {}", username);
             return null;
         }
 
@@ -109,7 +109,7 @@ public class UserManager {
         onlineUserIds.add(user.getId());
         userDAO.setOnlineStatus(user.getId(), true);
 
-        logger.info(String.format("用户登录成功: username=%s, id=%s", username, user.getId()));
+        logger.info("用户登录成功: username={}", username);
         return user.getId();
     }
 
@@ -122,7 +122,7 @@ public class UserManager {
     public void logout(String userId) {
         if (userId != null && onlineUserIds.remove(userId)) {
             userDAO.setOnlineStatus(userId, false);
-            logger.info("用户登出: " + userId);
+            logger.info("用户登出: {}", userId);
         }
     }
 

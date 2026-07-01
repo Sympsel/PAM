@@ -3,18 +3,20 @@ package server.dao;
 import common.entity.Pet;
 import common.enums.PetSpecies;
 import common.enums.PetStatus;
+import common.manager.AdoptionApplicationManager;
 import config.DatabaseConfig;
 
 import java.sql.*;
 import java.util.*;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 宠物数据访问对象
  */
 public class PetDAO implements BaseDAO<Pet, String> {
 
-    private static final Logger logger = Logger.getLogger(PetDAO.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(PetDAO.class);
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(
@@ -30,7 +32,7 @@ public class PetDAO implements BaseDAO<Pet, String> {
     @Override
     public boolean save(Pet pet) {
         if (pet == null) {
-            logger.warning("尝试保存空宠物");
+            logger.warn("尝试保存空宠物");
             return false;
         }
 
@@ -42,21 +44,21 @@ public class PetDAO implements BaseDAO<Pet, String> {
 
             pstmt.setString(1, pet.getId());
             pstmt.setString(2, pet.getName());
-            pstmt.setString(3, pet.getSpecie().name());
+            pstmt.setString(3, pet.getSpecie().name().toLowerCase());
             pstmt.setInt(4, pet.getAge());
             pstmt.setString(5, pet.getDescription());
-            pstmt.setString(6, pet.getAdoptionStatus().name());
+            pstmt.setString(6, pet.getAdoptionStatus().name().toLowerCase());
             pstmt.setLong(7, pet.getCreateTime());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
-                logger.info("宠物保存成功: " + pet.getName());
+                logger.info("宠物保存成功: {}", pet.getName());
                 return true;
             }
         } catch (SQLIntegrityConstraintViolationException e) {
-            logger.warning("宠物已存在: " + pet.getId());
+            logger.warn("宠物已存在: {}", pet.getId());
         } catch (SQLException e) {
-            logger.severe("保存宠物失败: " + e.getMessage());
+            logger.warn("保存宠物失败: {}", e.getMessage());
         }
         return false;
     }
@@ -81,7 +83,7 @@ public class PetDAO implements BaseDAO<Pet, String> {
                 }
             }
         } catch (SQLException e) {
-            logger.severe("查询宠物失败: " + e.getMessage());
+            logger.warn("查询宠物失败: {}", e.getMessage());
         }
         return null;
     }
@@ -102,7 +104,7 @@ public class PetDAO implements BaseDAO<Pet, String> {
                 pets.add(getPetByResultSet(rs));
             }
         } catch (SQLException e) {
-            logger.severe("查询所有宠物失败: " + e.getMessage());
+            logger.warn("查询所有宠物失败: " + e.getMessage());
         }
         return pets;
     }
@@ -113,7 +115,7 @@ public class PetDAO implements BaseDAO<Pet, String> {
     @Override
     public boolean update(Pet pet) {
         if (pet == null) {
-            logger.warning("尝试更新空宠物");
+            logger.warn("尝试更新空宠物");
             return false;
         }
 
@@ -124,19 +126,19 @@ public class PetDAO implements BaseDAO<Pet, String> {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, pet.getName());
-            pstmt.setString(2, pet.getSpecie().name());
+            pstmt.setString(2, pet.getSpecie().name().toLowerCase());
             pstmt.setInt(3, pet.getAge());
             pstmt.setString(4, pet.getDescription());
-            pstmt.setString(5, pet.getAdoptionStatus().name());
+            pstmt.setString(5, pet.getAdoptionStatus().name().toLowerCase());
             pstmt.setString(6, pet.getId());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
-                logger.info("宠物更新成功: " + pet.getName());
+                logger.info("宠物更新成功: {}", pet.getName());
                 return true;
             }
         } catch (SQLException e) {
-            logger.severe("更新宠物失败: " + e.getMessage());
+            logger.warn("更新宠物失败: {}", e.getMessage());
         }
         return false;
     }
@@ -158,14 +160,14 @@ public class PetDAO implements BaseDAO<Pet, String> {
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
-                logger.info("宠物删除成功: " + id);
+                logger.info("宠物删除成功: {}", id);
                 return true;
             }
         } catch (SQLException e) {
-            logger.severe("删除宠物失败: " + e.getMessage());
+            logger.warn("删除宠物失败: {}", e.getMessage());
         }
 
-        logger.warning("尝试删除不存在的宠物: " + id);
+        logger.warn("尝试删除不存在的宠物: {}", id);
         return false;
     }
 
@@ -183,7 +185,7 @@ public class PetDAO implements BaseDAO<Pet, String> {
                 return rs.getInt(1);
             }
         } catch (SQLException e) {
-            logger.severe("统计宠物失败: " + e.getMessage());
+            logger.warn("统计宠物失败: {}", e.getMessage());
         }
         return 0;
     }
@@ -198,14 +200,14 @@ public class PetDAO implements BaseDAO<Pet, String> {
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, species.name());
+            pstmt.setString(1, species.name().toLowerCase());
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     pets.add(getPetByResultSet(rs));
                 }
             }
         } catch (SQLException e) {
-            logger.severe("按物种查询宠物失败: " + e.getMessage());
+            logger.warn("按物种查询宠物失败: {}", e.getMessage());
         }
         return pets;
     }
@@ -220,14 +222,14 @@ public class PetDAO implements BaseDAO<Pet, String> {
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, status.name());
+            pstmt.setString(1, status.name().toLowerCase());
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     pets.add(getPetByResultSet(rs));
                 }
             }
         } catch (SQLException e) {
-            logger.severe("按状态查询宠物失败: " + e.getMessage());
+            logger.warn("按状态查询宠物失败: {}", e.getMessage());
         }
         return pets;
     }
@@ -249,7 +251,7 @@ public class PetDAO implements BaseDAO<Pet, String> {
                 }
             }
         } catch (SQLException e) {
-            logger.severe("按名称查询宠物失败: " + e.getMessage());
+            logger.warn("按名称查询宠物失败: {}", e.getMessage());
         }
         return pets;
     }
@@ -261,10 +263,10 @@ public class PetDAO implements BaseDAO<Pet, String> {
         return Pet.createFromDatabase(
                 rs.getString("id"),
                 rs.getString("name"),
-                PetSpecies.valueOf(rs.getString("specie")),
+                PetSpecies.valueOf(rs.getString("specie").toUpperCase()),
                 rs.getInt("age"),
                 rs.getString("description"),
-                PetStatus.valueOf(rs.getString("adoption_status")),
+                PetStatus.valueOf(rs.getString("adoption_status").toUpperCase()),
                 rs.getLong("create_time")
         );
     }

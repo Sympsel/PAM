@@ -7,14 +7,15 @@ import config.DatabaseConfig;
 
 import java.sql.*;
 import java.util.*;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 领养申请数据访问对象
  */
 public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, String> {
 
-    private static final Logger logger = Logger.getLogger(AdoptionApplicationDAO.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(AdoptionApplicationDAO.class);
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(
@@ -30,7 +31,7 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
     @Override
     public boolean save(AdoptionApplication application) {
         if (application == null) {
-            logger.warning("尝试保存空申请");
+            logger.warn("尝试保存空申请");
             return false;
         }
 
@@ -43,17 +44,17 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
             pstmt.setString(1, application.getId());
             pstmt.setString(2, application.getApplicatorId());
             pstmt.setString(3, application.getPetId());
-            pstmt.setString(4, application.getStatus().name());
+            pstmt.setString(4, application.getStatus().name().toLowerCase());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
-                logger.info("领养申请保存成功: " + application.getId());
+                logger.info("领养申请保存成功: {}", application.getId());
                 return true;
             }
         } catch (SQLIntegrityConstraintViolationException e) {
-            logger.warning("申请已存在: " + application.getId());
+            logger.warn("申请已存在: {}", application.getId());
         } catch (SQLException e) {
-            logger.severe("保存领养申请失败: " + e.getMessage());
+            logger.warn("保存领养申请失败: {}", e.getMessage());
         }
         return false;
     }
@@ -78,7 +79,7 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
                 }
             }
         } catch (SQLException e) {
-            logger.severe("查询申请失败: " + e.getMessage());
+            logger.warn("查询申请失败: {}", e.getMessage());
         }
         return null;
     }
@@ -99,7 +100,7 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
                 applications.add(getApplicationByResultSet(rs));
             }
         } catch (SQLException e) {
-            logger.severe("查询所有申请失败: " + e.getMessage());
+            logger.warn("查询所有申请失败: {}", e.getMessage());
         }
         return applications;
     }
@@ -110,7 +111,7 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
     @Override
     public boolean update(AdoptionApplication application) {
         if (application == null) {
-            logger.warning("尝试更新空申请");
+            logger.warn("尝试更新空申请");
             return false;
         }
 
@@ -120,7 +121,7 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, application.getStatus().name());
+            pstmt.setString(1, application.getStatus().name().toLowerCase());
 
             Review review = application.getReview();
             if (review != null) {
@@ -137,11 +138,11 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
-                logger.info("申请更新成功: " + application.getId());
+                logger.info("申请更新成功: {}", application.getId());
                 return true;
             }
         } catch (SQLException e) {
-            logger.severe("更新申请失败: " + e.getMessage());
+            logger.warn("更新申请失败: {}", e.getMessage());
         }
         return false;
     }
@@ -163,14 +164,14 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
-                logger.info("申请删除成功: " + id);
+                logger.info("申请删除成功: {}", id);
                 return true;
             }
         } catch (SQLException e) {
-            logger.severe("删除申请失败: " + e.getMessage());
+            logger.warn("删除申请失败: {}", e.getMessage());
         }
 
-        logger.warning("尝试删除不存在的申请: " + id);
+        logger.warn("尝试删除不存在的申请: {}", id);
         return false;
     }
 
@@ -188,7 +189,7 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
                 return rs.getInt(1);
             }
         } catch (SQLException e) {
-            logger.severe("统计申请失败: " + e.getMessage());
+            logger.warn("统计申请失败: {}", e.getMessage());
         }
         return 0;
     }
@@ -210,7 +211,7 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
                 }
             }
         } catch (SQLException e) {
-            logger.severe("按申请人查询申请失败: " + e.getMessage());
+            logger.warn("按申请人查询申请失败: {}", e.getMessage());
         }
         return applications;
     }
@@ -232,7 +233,7 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
                 }
             }
         } catch (SQLException e) {
-            logger.severe("按宠物查询申请失败: " + e.getMessage());
+            logger.warn("按宠物查询申请失败: {}", e.getMessage());
         }
         return applications;
     }
@@ -247,14 +248,14 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, status.name());
+            pstmt.setString(1, status.name().toLowerCase());
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     applications.add(getApplicationByResultSet(rs));
                 }
             }
         } catch (SQLException e) {
-            logger.severe("按状态查询申请失败: " + e.getMessage());
+            logger.warn("按状态查询申请失败: {}", e.getMessage());
         }
         return applications;
     }
@@ -276,7 +277,7 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
                 }
             }
         } catch (SQLException e) {
-            logger.severe("按审核人查询申请失败: " + e.getMessage());
+            logger.warn("按审核人查询申请失败: {}", e.getMessage());
         }
         return applications;
     }
@@ -290,14 +291,14 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, status.name());
+            pstmt.setString(1, status.name().toLowerCase());
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1);
                 }
             }
         } catch (SQLException e) {
-            logger.severe("统计申请失败: " + e.getMessage());
+            logger.warn("统计申请失败: {}", e.getMessage());
         }
         return 0;
     }
@@ -319,7 +320,7 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
                 }
             }
         } catch (SQLException e) {
-            logger.severe("检查申请状态失败: " + e.getMessage());
+            logger.warn("检查申请状态失败: {}", e.getMessage());
         }
         return false;
     }
@@ -331,7 +332,7 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
         String id = rs.getString("id");
         String applicatorId = rs.getString("applicator_id");
         String petId = rs.getString("pet_id");
-        ApplicationStatus status = ApplicationStatus.valueOf(rs.getString("status"));
+        ApplicationStatus status = ApplicationStatus.valueOf(rs.getString("status").toUpperCase());
 
         // 构建 Review 对象
         Review review = null;

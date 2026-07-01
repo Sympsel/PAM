@@ -29,7 +29,10 @@ public class User {
      * 用户实名信息，没有表示未实名
      */
     private Profile profile;
-
+    /**
+     * 是否在线
+     */
+    private boolean isOnline;
 
     /**
      * 创建时间戳
@@ -42,13 +45,14 @@ public class User {
      * @warn 仅供 DAO 层使用
      */
     public static User createFromDatabase(String id, String username, String password,
-                                          Permission permission, Profile profile, long createTime) {
+                                          Permission permission, Profile profile, boolean isOnline, long createTime) {
         return User.builder()
                 .id(id)
                 .username(username)
                 .password(password)
                 .permission(permission)
                 .profile(profile)
+                .isOnline(isOnline)
                 .createTime(createTime)
                 .build();
     }
@@ -63,6 +67,7 @@ public class User {
         this.password = password;
         this.permission = permission;
         this.profile = profile;
+        this.isOnline = false;
         this.createTime = System.currentTimeMillis();
     }
 
@@ -81,6 +86,25 @@ public class User {
     public String toString() {
         return String.format("{id=%s,name=%s,password=%s,role=%s, profile={%s}}",
                 id, username, password, permission, profile);
+    }
+
+    /**
+     *
+     * @return 格式化字符串，无密码
+     */
+    public String getDisplayString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(username).append(" (").append(permission).append(")\n");
+        sb.append("\tID: ").append(id).append("\n");
+        sb.append("\t状态: ").append(isOnline ? "在线" : "离线").append("\n");
+        if (profile != null) {
+            sb.append("\t姓名: ").append(profile.getRealName()).append("\n");
+            sb.append("\t电话: ").append(profile.getPhone()).append("\n");
+            sb.append("\t地址: ").append(profile.getAddress());
+        } else {
+            sb.append("\t未实名");
+        }
+        return sb.toString();
     }
 
     /**

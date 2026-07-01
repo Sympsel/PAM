@@ -77,4 +77,16 @@ public class Pet {
                 .createTime(createTime)
                 .build();
     }
+
+    /**
+     *
+     * @return 格式化字符串
+     */
+    public String getDisplayString() {
+        return name + " (" + specie + ")\n" +
+                "\tID: " + id + "\n" +
+                "\t年龄: " + age + "岁\n" +
+                "\t状态: " + adoptionStatus + "\n" +
+                "\t描述: " + (description != null ? description : "无");
+    }
 }

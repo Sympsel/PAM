@@ -5,6 +5,8 @@ import common.enums.Permission;
 import common.manager.UserManager;
 import common.dto.response.Result;
 import common.exception.BusinessException;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 /**
  * 用户服务类 - 服务层
@@ -348,9 +350,7 @@ public class UserService {
                     .count();
 
             UserStatistics stats = new UserStatistics(
-                    total,
-                    (int) adminCount,
-                    (int) normalCount
+                    total, (int) adminCount, (int) normalCount
             );
             return Result.success(stats);
         } catch (BusinessException e) {
@@ -364,15 +364,20 @@ public class UserService {
      * 验证管理员权限
      */
     private void validateAdminPermission(String userId) throws BusinessException {
-         User user = UserManager.getInstance().getUserById(userId);
-         if (user == null || user.getPermission() != Permission.ADMIN) {
-             throw new BusinessException(403, "无权限执行此操作");
-         }
+        User user = UserManager.getInstance().getUserById(userId);
+        if (user == null || user.getPermission() != Permission.ADMIN) {
+            throw new BusinessException(403, "无权限执行此操作");
+        }
     }
 
     /**
-         * 用户统计数据
-         */
-        public record UserStatistics(int total, int adminCount, int normalCount) {
+     * 用户统计数据
+     */
+    @Data
+    @AllArgsConstructor
+    public static class UserStatistics {
+        private int total;
+        private int adminCount;
+        private int normalCount;
     }
 }

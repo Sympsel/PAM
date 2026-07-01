@@ -35,11 +35,6 @@ public class Announcement {
                 .build();
     }
 
-//    public String toString() {
-//        return String.format("{id=%s,title=%s,content=%s,createTime=%s}",
-//                id, title, content, createTime);
-//    }
-
     /**
      * toString 显示转义后的内容（用于日志和调试）
      */
@@ -47,5 +42,37 @@ public class Announcement {
     public String toString() {
         return String.format("Announcement{id=%s,title=%s,content=%s,createTime=%s}",
                 id, title, StringFormatter.escapeAndTruncate(content, 100), createTime);
+    }
+
+    /**
+     *
+     * @return 转义后的内容，有显示长度限制
+     */
+    public String getShortContent() {
+        return StringFormatter.escapeAndTruncate(content, 100);
+    }
+
+    /**
+     *
+     * @return 格式化字符串
+     */
+    public String getDisplayString() {
+        return title + "\n" +
+                "\tID: " + id + "\n" +
+                "\t发布者: " + senderId + "\n" +
+                "\t发布时间: " + StringFormatter.timeStampToString(createTime) + "\n" +
+                "\t内容:\n" + (content != null ? content : "无");
+    }
+
+    /**
+     *
+     * @return 格式化字符串
+     */
+    public String getShortDisplayString() {
+        return title + "\n" +
+                "\tID: " + id + "\n" +
+                "\t发布者: " + senderId + "\n" +
+                "\t发布时间: " + StringFormatter.timeStampToString(createTime) + "\n" +
+                "\t内容:\n" + (content != null ? getShortContent() : "无");
     }
 }

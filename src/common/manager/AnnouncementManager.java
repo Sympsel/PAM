@@ -1,6 +1,7 @@
 package common.manager;
 
 import common.entity.Announcement;
+import common.utils.StringFormatter;
 import server.dao.AnnouncementDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,14 +208,7 @@ public class AnnouncementManager {
             System.out.println("暂无公告");
         } else {
             for (int i = 0; i < announcements.size(); i++) {
-                Announcement a = announcements.get(i);
-                System.out.printf("[%d] %s\n    发布者: %s\n    时间: %s\n",
-                        i + 1,
-                        a.getTitle(),
-                        a.getSenderId(),
-                        new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                                .format(new java.util.Date(a.getCreateTime()))
-                );
+                System.out.printf("[%d] %s\n\n", i + 1, announcements.get(i).getShortDisplayString());
             }
         }
         System.out.println("总计: " + announcements.size() + " 条");
@@ -237,8 +231,7 @@ public class AnnouncementManager {
         System.out.println("ID: " + announcement.getId());
         System.out.println("标题: " + announcement.getTitle());
         System.out.println("发布者: " + announcement.getSenderId());
-        System.out.println("时间: " + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                .format(new java.util.Date(announcement.getCreateTime())));
+        System.out.println("时间: " + StringFormatter.timeStampToString(announcement.getCreateTime()));
         System.out.println("内容:");
         System.out.println(announcement.getContent());
         System.out.println("==============================");

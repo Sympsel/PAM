@@ -96,4 +96,13 @@ public class StringFormatter {
                    .replace("\r", "\\r")
                    .replace("\t", "\\t");
     }
+
+    /**
+     *
+     * 拿到格式化后的时间
+     */
+    public static String timeStampToString(long timestamp) {
+        return new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                .format(new java.util.Date(timestamp));
+    }
 }

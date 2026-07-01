@@ -61,6 +61,25 @@ public class AdoptionApplication {
     }
 
     /**
+     *
+     * @return 格式化字符串
+     */
+    public String getDisplayString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ID: ").append(id).append("\n");
+        sb.append("\t申请人: ").append(applicatorId).append("\n");
+        sb.append("\t宠物: ").append(petId).append("\n");
+        sb.append("\t状态: ").append(status);
+        if (review != null) {
+            sb.append("\n\t审核人: ").append(review.getAdminId());
+            sb.append("\n\t审核意见: ").append(review.getComment());
+            sb.append("\n\t审核时间: ").append(common.utils.StringFormatter.timeStampToString(review.getTime()));
+
+        }
+        return sb.toString();
+    }
+
+    /**
      * 审核信息
      */
     @Data
@@ -93,6 +112,6 @@ public class AdoptionApplication {
                     .time(time)
                     .build();
         }
-
     }
+
 }

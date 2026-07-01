@@ -19,7 +19,6 @@ public abstract class Client {
 
 
     protected abstract void login();
-    protected abstract void showMenu();
     protected abstract void exit();
     public abstract void start();
 }

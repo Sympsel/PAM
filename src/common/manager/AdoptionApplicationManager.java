@@ -313,16 +313,7 @@ public class AdoptionApplicationManager {
             System.out.println("暂无申请");
         } else {
             for (int i = 0; i < applications.size(); i++) {
-                AdoptionApplication app = applications.get(i);
-                System.out.printf("[%d] ID: %s\n", i + 1, app.getId());
-                System.out.printf("    申请人: %s\n", app.getApplicatorId());
-                System.out.printf("    宠物: %s\n", app.getPetId());
-                System.out.printf("    状态: %s\n", app.getStatus());
-                if (app.getReview() != null) {
-                    System.out.printf("    审核人: %s\n", app.getReview().getAdminId());
-                    System.out.printf("    审核意见: %s\n", app.getReview().getComment());
-                }
-                System.out.println();
+                System.out.printf("[%d] %s\n\n", i + 1, applications.get(i).getDisplayString());
             }
         }
         System.out.println("总计: " + applications.size() + " 条");
@@ -342,20 +333,7 @@ public class AdoptionApplicationManager {
         }
 
         System.out.println("========== 申请详情 ==========");
-        System.out.println("ID: " + application.getId());
-        System.out.println("申请人: " + application.getApplicatorId());
-        System.out.println("宠物: " + application.getPetId());
-        System.out.println("状态: " + application.getStatus());
-
-        if (application.getReview() != null) {
-            System.out.println("审核信息:");
-            System.out.println("\t审核人: " + application.getReview().getAdminId());
-            System.out.println("\t审核意见: " + application.getReview().getComment());
-            System.out.println("\t审核时间: " + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                    .format(new java.util.Date(application.getReview().getTime())));
-        } else {
-            System.out.println("审核信息: 未审核");
-        }
+        System.out.println(application.getDisplayString());
         System.out.println("==============================");
     }
 }

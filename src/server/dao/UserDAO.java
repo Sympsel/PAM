@@ -6,7 +6,8 @@ import config.DatabaseConfig;
 
 import java.sql.*;
 import java.util.*;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 用户数据访问对象
@@ -14,7 +15,7 @@ import java.util.logging.Logger;
  */
 public class UserDAO implements BaseDAO<User, String> {
 
-    private static final Logger logger = Logger.getLogger(UserDAO.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
 
     /**
      * 获取数据库连接
@@ -35,7 +36,7 @@ public class UserDAO implements BaseDAO<User, String> {
     @Override
     public boolean save(User user) {
         if (user == null) {
-            logger.warning("尝试保存空用户");
+            logger.warn("尝试保存空用户");
             return false;
         }
         String sql = "insert into users (" +
@@ -59,17 +60,17 @@ public class UserDAO implements BaseDAO<User, String> {
                 pstmt.setNull(5, Types.VARCHAR);
                 pstmt.setString(6, "未知");
             }
-            pstmt.setString(7, user.getPermission().name());
+            pstmt.setString(7, user.getPermission().name().toLowerCase());
             pstmt.setLong(8, user.getCreateTime());
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
-                logger.info("用户保存成功: " + user.getUsername());
+                logger.info("用户保存成功: {}", user.getUsername());
                 return true;
             }
         } catch (SQLIntegrityConstraintViolationException e) {
-            logger.warning("用户名已存在: " + user.getUsername());
+            logger.warn("用户名已存在: {}", user.getUsername());
         } catch (SQLException e) {
-            logger.severe("保存用户失败: " + e.getMessage());
+            logger.warn("保存用户失败: {}", e.getMessage());
         }
         return false;
     }
@@ -94,7 +95,7 @@ public class UserDAO implements BaseDAO<User, String> {
                 }
             }
         } catch (SQLException e) {
-            logger.severe("查询用户失败: " + e.getMessage());
+            logger.warn("查询用户失败: {}", e.getMessage());
         }
 
         return null;
@@ -117,7 +118,7 @@ public class UserDAO implements BaseDAO<User, String> {
                 users.add(getUserByResultSet(rs));
             }
         } catch (SQLException e) {
-            logger.severe("查询所有用户失败: " + e.getMessage());
+            logger.warn("查询所有用户失败: {}", e.getMessage());
         }
 
         return users;
@@ -131,7 +132,7 @@ public class UserDAO implements BaseDAO<User, String> {
     @Override
     public boolean update(User user) {
         if (user == null) {
-            logger.warning("尝试更新空用户");
+            logger.warn("尝试更新空用户");
             return false;
         }
 
@@ -155,16 +156,16 @@ public class UserDAO implements BaseDAO<User, String> {
                 pstmt.setString(5, "未知");
             }
 
-            pstmt.setString(6, user.getPermission().name());
+            pstmt.setString(6, user.getPermission().name().toLowerCase());
             pstmt.setString(7, user.getId());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
-                logger.info("用户更新成功: " + user.getUsername());
+                logger.info("用户更新成功: {}", user.getUsername());
                 return true;
             }
         } catch (SQLException e) {
-            logger.severe("更新用户失败: " + e.getMessage());
+            logger.warn("更新用户失败: {}", e.getMessage());
         }
 
         return false;
@@ -186,14 +187,14 @@ public class UserDAO implements BaseDAO<User, String> {
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
-                logger.info("用户删除成功: " + id);
+                logger.info("用户删除成功: {}", id);
                 return true;
             }
         } catch (SQLException e) {
-            logger.severe("删除用户失败: " + e.getMessage());
+            logger.warn("删除用户失败: {}", e.getMessage());
         }
 
-        logger.warning("尝试删除不存在的用户: " + id);
+        logger.warn("尝试删除不存在的用户: {}", id);
         return false;
     }
 
@@ -213,7 +214,7 @@ public class UserDAO implements BaseDAO<User, String> {
                 return rs.getInt(1);
             }
         } catch (SQLException e) {
-            logger.severe("统计用户失败: " + e.getMessage());
+            logger.warn("统计用户失败: {}", e.getMessage());
         }
 
         return 0;
@@ -239,7 +240,7 @@ public class UserDAO implements BaseDAO<User, String> {
                 }
             }
         } catch (SQLException e) {
-            logger.severe("查询用户失败: " + e.getMessage());
+            logger.warn("查询用户失败: {}", e.getMessage());
         }
         return null;
     }
@@ -256,7 +257,7 @@ public class UserDAO implements BaseDAO<User, String> {
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, permission.name());
+            pstmt.setString(1, permission.name().toLowerCase());
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -264,7 +265,7 @@ public class UserDAO implements BaseDAO<User, String> {
                 }
             }
         } catch (SQLException e) {
-            logger.severe("按权限查询用户失败: " + e.getMessage());
+            logger.warn("按权限查询用户失败: {}", e.getMessage());
         }
 
         return users;
@@ -281,7 +282,7 @@ public class UserDAO implements BaseDAO<User, String> {
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, permission.name());
+            pstmt.setString(1, permission.name().toLowerCase());
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -289,7 +290,7 @@ public class UserDAO implements BaseDAO<User, String> {
                 }
             }
         } catch (SQLException e) {
-            logger.severe("统计用户失败: " + e.getMessage());
+            logger.warn("统计用户失败: {}", e.getMessage());
         }
 
         return 0;
@@ -314,7 +315,7 @@ public class UserDAO implements BaseDAO<User, String> {
                 }
             }
         } catch (SQLException e) {
-            logger.severe("检查用户名失败: " + e.getMessage());
+            logger.warn("检查用户名失败: {}", e.getMessage());
         }
 
         return false;
@@ -336,7 +337,7 @@ public class UserDAO implements BaseDAO<User, String> {
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
-            logger.severe("更新在线状态失败: " + e.getMessage());
+            logger.warn("更新在线状态失败: {}", e.getMessage());
         }
     }
 
@@ -350,10 +351,10 @@ public class UserDAO implements BaseDAO<User, String> {
              Statement stmt = conn.createStatement()) {
 
             stmt.executeUpdate(sql);
-            logger.warning("所有用户数据已清空");
+            logger.warn("所有用户数据已清空");
 
         } catch (SQLException e) {
-            logger.severe("清空用户数据失败: " + e.getMessage());
+            logger.warn("清空用户数据失败: {}", e.getMessage());
         }
     }
 
@@ -364,7 +365,8 @@ public class UserDAO implements BaseDAO<User, String> {
         String realName = rs.getString("real_name");
         String phone = rs.getString("phone");
         String address = rs.getString("address");
-        Permission permission = Permission.valueOf(rs.getString("permission"));
+        Permission permission = Permission.valueOf(rs.getString("permission").toUpperCase());
+        boolean isOnline = rs.getBoolean("is_online");
         long createTime = rs.getLong("create_time");
 
         User.Profile profile = null;
@@ -375,6 +377,6 @@ public class UserDAO implements BaseDAO<User, String> {
                     address != null ? address : "未知"
             );
         }
-        return User.createFromDatabase(id, username, password, permission, profile, createTime);
+        return User.createFromDatabase(id, username, password, permission, profile, isOnline, createTime);
     }
 }

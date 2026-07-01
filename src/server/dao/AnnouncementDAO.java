@@ -5,14 +5,14 @@ import config.DatabaseConfig;
 
 import java.sql.*;
 import java.util.*;
-import java.util.logging.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * 公告数据访问对象
  */
 public class AnnouncementDAO implements BaseDAO<Announcement, String> {
 
-    private static final Logger logger = Logger.getLogger(AnnouncementDAO.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(AnnouncementDAO.class);
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(
@@ -28,7 +28,7 @@ public class AnnouncementDAO implements BaseDAO<Announcement, String> {
     @Override
     public boolean save(Announcement announcement) {
         if (announcement == null) {
-            logger.warning("尝试保存空公告");
+            logger.warn("尝试保存空公告");
             return false;
         }
 
@@ -46,11 +46,11 @@ public class AnnouncementDAO implements BaseDAO<Announcement, String> {
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
-                logger.info("公告保存成功: " + announcement.getTitle());
+                logger.info("公告保存成功: {}", announcement.getTitle());
                 return true;
             }
         } catch (SQLException e) {
-            logger.severe("保存公告失败: " + e.getMessage());
+            logger.info("保存公告失败: {}", e.getMessage());
         }
         return false;
     }
@@ -75,7 +75,7 @@ public class AnnouncementDAO implements BaseDAO<Announcement, String> {
                 }
             }
         } catch (SQLException e) {
-            logger.severe("查询公告失败: " + e.getMessage());
+            logger.warn("查询公告失败: {}", e.getMessage());
         }
         return null;
     }
@@ -96,7 +96,7 @@ public class AnnouncementDAO implements BaseDAO<Announcement, String> {
                 announcements.add(getAnnouncementByResultSet(rs));
             }
         } catch (SQLException e) {
-            logger.severe("查询所有公告失败: " + e.getMessage());
+            logger.warn("查询所有公告失败: {}", e.getMessage());
         }
         return announcements;
     }
@@ -107,7 +107,7 @@ public class AnnouncementDAO implements BaseDAO<Announcement, String> {
     @Override
     public boolean update(Announcement announcement) {
         if (announcement == null) {
-            logger.warning("尝试更新空公告");
+            logger.warn("尝试更新空公告");
             return false;
         }
 
@@ -122,11 +122,11 @@ public class AnnouncementDAO implements BaseDAO<Announcement, String> {
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
-                logger.info("公告更新成功: " + announcement.getTitle());
+                logger.info("公告更新成功: {}", announcement.getTitle());
                 return true;
             }
         } catch (SQLException e) {
-            logger.severe("更新公告失败: " + e.getMessage());
+            logger.warn("更新公告失败: {}", e.getMessage());
         }
         return false;
     }
@@ -148,14 +148,14 @@ public class AnnouncementDAO implements BaseDAO<Announcement, String> {
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
-                logger.info("公告删除成功: " + id);
+                logger.info("公告删除成功: {}", id);
                 return true;
             }
         } catch (SQLException e) {
-            logger.severe("删除公告失败: " + e.getMessage());
+            logger.info("删除公告失败: {}", e.getMessage());
         }
 
-        logger.warning("尝试删除不存在的公告: " + id);
+        logger.warn("尝试删除不存在的公告: {}", id);
         return false;
     }
 
@@ -173,7 +173,7 @@ public class AnnouncementDAO implements BaseDAO<Announcement, String> {
                 return rs.getInt(1);
             }
         } catch (SQLException e) {
-            logger.severe("统计公告失败: " + e.getMessage());
+            logger.warn("统计公告失败: {}", e.getMessage());
         }
         return 0;
     }
@@ -195,7 +195,7 @@ public class AnnouncementDAO implements BaseDAO<Announcement, String> {
                 }
             }
         } catch (SQLException e) {
-            logger.severe("按发布者查询公告失败: " + e.getMessage());
+            logger.info("按发布者查询公告失败: {}", e.getMessage());
         }
         return announcements;
     }
@@ -217,7 +217,7 @@ public class AnnouncementDAO implements BaseDAO<Announcement, String> {
                 }
             }
         } catch (SQLException e) {
-            logger.severe("按标题查询公告失败: " + e.getMessage());
+            logger.warn("按标题查询公告失败: {}", e.getMessage());
         }
         return announcements;
     }
@@ -239,10 +239,10 @@ public class AnnouncementDAO implements BaseDAO<Announcement, String> {
                 }
             }
         } catch (SQLException e) {
-            logger.severe("查询最新公告失败: " + e.getMessage());
+            logger.warn("查询最新公告失败: {}", e.getMessage());
         }
         return announcements;
-    }
+}
 
     /**
      * 将 ResultSet 转换为 Announcement 对象
@@ -250,7 +250,7 @@ public class AnnouncementDAO implements BaseDAO<Announcement, String> {
     private Announcement getAnnouncementByResultSet(ResultSet rs) throws SQLException {
         return Announcement.createFromDatabase(
                 rs.getString("id"),
-                rs.getString("senderId"),
+                rs.getString("sender_id"),
                 rs.getString("title"),
                 rs.getString("content"),
                 rs.getLong("create_time")
