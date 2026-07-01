@@ -172,6 +172,67 @@ public class AdminClient extends Client {
                 System.out.println("统计失败: " + result.getMessage());
             }
         });
+        userMenu.addItem(3, "删除用户", () -> {
+            // 先显示用户列表供选择
+            Result<List<common.entity.User>> listResult = userService.getAllUsers(adminId);
+            if (!listResult.isSuccess()) {
+                System.out.println("查询用户列表失败: " + listResult.getMessage());
+                return;
+            }
+
+            List<common.entity.User> users = listResult.getData();
+            if (users.isEmpty()) {
+                System.out.println("暂无用户");
+                return;
+            }
+
+            System.out.println("========== 选择要删除的用户 ==========");
+            for (int i = 0; i < users.size(); i++) {
+                common.entity.User u = users.get(i);
+                System.out.printf("[%d] %s (%s)%s\n",
+                        i + 1, u.getUsername(), u.getPermission(),
+                        u.getId().equals(adminId) ? " ← 当前账户" : "");
+            }
+            System.out.println("[0] 取消");
+            System.out.println("======================================");
+
+            String input = reader.readLine("请选择要删除的用户编号：");
+            if (input == null || input.trim().isEmpty()) return;
+
+            int choice;
+            try {
+                choice = Integer.parseInt(input.trim());
+            } catch (NumberFormatException e) {
+                System.out.println("无效输入");
+                return;
+            }
+
+            if (choice == 0) return;
+            if (choice < 1 || choice > users.size()) {
+                System.out.println("无效选项");
+                return;
+            }
+
+            common.entity.User targetUser = users.get(choice - 1);
+
+            if (targetUser.getId().equals(adminId)) {
+                System.out.println("不能删除自己的账户，已返回");
+                return;
+            }
+
+            String confirm = reader.readLine("确认删除用户 " + targetUser.getUsername() + "？(y/n)：");
+            if (confirm == null || !confirm.trim().equalsIgnoreCase("y")) {
+                System.out.println("已取消");
+                return;
+            }
+
+            Result<String> result = userService.deleteUser(adminId, targetUser.getId());
+            if (result.isSuccess()) {
+                System.out.println(result.getMessage());
+            } else {
+                System.out.println("删除失败: " + result.getMessage());
+            }
+        });
         userMenu.addBackItem();
         userMenu.run();
     }

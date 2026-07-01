@@ -5,8 +5,10 @@ import config.DatabaseConfig;
 
 import java.sql.*;
 import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  * 公告数据访问对象
  */
@@ -33,7 +35,7 @@ public class AnnouncementDAO implements BaseDAO<Announcement, String> {
         }
 
         String sql = "insert into announcements (id, sender_id, title, content, create_time) " +
-                     "values (?, ?, ?, ?, ?)";
+                "values (?, ?, ?, ?, ?)";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -242,7 +244,29 @@ public class AnnouncementDAO implements BaseDAO<Announcement, String> {
             logger.warn("查询最新公告失败: {}", e.getMessage());
         }
         return announcements;
-}
+    }
+
+    /**
+     * 删除指定发布者的所有公告
+     *
+     * @param senderId 发布者ID
+     * @return 删除的记录数
+     */
+    public int deleteBySender(String senderId) {
+        String sql = "delete from announcements where sender_id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, senderId);
+            int rows = pstmt.executeUpdate();
+            if (rows > 0) {
+                logger.info("删除用户 {} 的 {} 条公告", senderId, rows);
+            }
+            return rows;
+        } catch (SQLException e) {
+            logger.warn("删除用户公告失败: {}", e.getMessage());
+            return 0;
+        }
+    }
 
     /**
      * 将 ResultSet 转换为 Announcement 对象

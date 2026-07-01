@@ -4,6 +4,8 @@ import common.entity.User;
 import common.enums.Permission;
 import common.utils.PasswordEncoder;
 import common.utils.Validator;
+import server.dao.AdoptionApplicationDAO;
+import server.dao.AnnouncementDAO;
 import server.dao.UserDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +17,14 @@ public class UserManager {
 
     private static UserManager instance;
     private final UserDAO userDAO;
+    private final AdoptionApplicationDAO applicationDAO;
+    private final AnnouncementDAO announcementDAO;
     private final List<String> onlineUserIds;
 
     private UserManager() {
         userDAO = new UserDAO();
+        applicationDAO = new AdoptionApplicationDAO();
+        announcementDAO = new AnnouncementDAO();
         onlineUserIds = new ArrayList<>();
     }
 
@@ -67,6 +73,44 @@ public class UserManager {
         }
         logger.info("用户注册成功: {}, ID: {}", username, newUser.getId());
         return newUser.getId();
+    }
+
+    /**
+     * 删除用户
+     *
+     * @param userId 要删除的用户ID
+     * @return 是否删除成功
+     */
+    public boolean deleteUser(String userId) {
+        if (userId == null || userId.isEmpty()) {
+            logger.warn("删除用户失败：用户ID为空");
+            return false;
+        }
+
+        User user = userDAO.findById(userId);
+        if (user == null) {
+            logger.warn("删除用户失败：用户不存在: {}", userId);
+            return false;
+        }
+
+        // 如果用户在线，先登出
+        onlineUserIds.remove(userId);
+
+        // 级联删除用户的申请和公告
+        int apps = applicationDAO.deleteByApplicator(userId);
+        int announcements = announcementDAO.deleteBySender(userId);
+        if (apps > 0 || announcements > 0) {
+            logger.info("～ 删除用户 {} 的 {} 条申请和 {} 条公告",
+                    user.getUsername(), apps, announcements);
+        }
+
+        boolean success = userDAO.delete(userId);
+        if (success) {
+            logger.info("～ 用户删除成功: {}", user.getUsername());
+        } else {
+            logger.warn("用户删除失败: {}", user.getUsername());
+        }
+        return success;
     }
 
     /**

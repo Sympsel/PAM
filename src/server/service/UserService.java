@@ -5,6 +5,7 @@ import common.enums.Permission;
 import common.manager.UserManager;
 import common.dto.response.Result;
 import common.exception.BusinessException;
+import common.utils.PasswordEncoder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -231,10 +232,9 @@ public class UserService {
                 return Result.error("用户不存在");
             }
 
-            // TODO: 验证旧密码是否正确
-            // if (!PasswordEncoder.matches(oldPassword, user.getPassword())) {
-            //     return Result.error("旧密码错误");
-            // }
+            if (!PasswordEncoder.matches(oldPassword, user.getPassword())) {
+                return Result.error("旧密码错误");
+            }
 
             // 3. 更新密码
             user.setPassword(newPassword);
@@ -302,31 +302,29 @@ public class UserService {
      */
     public Result<String> deleteUser(String adminId, String userId) {
         try {
-            // 1. 验证管理员权限
             validateAdminPermission(adminId);
-
-            // 2. 不能删除自己
             if (adminId.equals(userId)) {
                 return Result.error("不能删除自己的账户");
             }
 
-            // 3. 先登出用户（如果在线）
-            userManager.logout(userId);
+            User user = userManager.getUserById(userId);
+            if (user == null) {
+                return Result.error("用户不存在");
+            }
 
-            // 4. 从数据库删除用户
-            // TODO: UserManager 需要添加 deleteUser 方法
-            // boolean success = userManager.deleteUser(userId);
+            boolean success = userManager.deleteUser(userId);
 
-            // 临时方案：直接返回错误
-            return Result.error("删除用户功能尚未实现，需要在 UserManager 中添加 deleteUser 方法");
+            if (success) {
+                return Result.success("用户 " + user.getUsername() + " 已注销");
+            } else {
+                return Result.error("删除用户失败");
+            }
         } catch (BusinessException e) {
             return Result.error(e.getErrorCode(), e.getMessage());
         } catch (Exception e) {
             return Result.error("系统错误: " + e.getMessage());
         }
-    }
-
-    /**
+    }    /**
      * 获取用户统计信息（管理员）
      *
      * @param adminId 管理员ID

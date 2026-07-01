@@ -147,6 +147,28 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
         return false;
     }
 
+
+    /**
+     * 删除指定申请人的所有申请
+     * @param applicatorId 申请人ID
+     * @return 删除的记录数
+     */
+    public int deleteByApplicator(String applicatorId) {
+        String sql = "delete from adoption_applications where applicator_id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, applicatorId);
+            int rows = pstmt.executeUpdate();
+            if (rows > 0) {
+                logger.info("删除用户 {} 的 {} 条申请", applicatorId, rows);
+            }
+            return rows;
+        } catch (SQLException e) {
+            logger.warn("删除用户申请失败: {}", e.getMessage());
+            return 0;
+        }
+    }
+
     /**
      * 删除申请
      */

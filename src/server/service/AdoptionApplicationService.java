@@ -1,9 +1,12 @@
 package server.service;
 
 import common.entity.AdoptionApplication;
+import common.entity.User;
+import common.enums.Permission;
 import common.manager.AdoptionApplicationManager;
 import common.dto.response.Result;
 import common.exception.BusinessException;
+import common.manager.UserManager;
 
 import java.util.List;
 
@@ -259,11 +262,10 @@ public class AdoptionApplicationService {
      * 验证管理员权限
      */
     private void validateAdminPermission(String userId) throws BusinessException {
-        // TODO: 从 UserManager 获取用户权限并验证
-        // User user = UserManager.getInstance().getUserById(userId);
-        // if (user == null || user.getPermission() != Permission.ADMIN) {
-        //     throw new BusinessException(403, "无权限执行此操作");
-        // }
+         User user = UserManager.getInstance().getUserById(userId);
+         if (user == null || user.getPermission() != Permission.ADMIN) {
+             throw new BusinessException(403, "无权限执行此操作");
+         }
     }
 
     /**
