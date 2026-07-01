@@ -1,18 +1,15 @@
 package common.entity;
 
+import common.enums.ApplicationStatus;
+import lombok.*;
+
 /**
  * @brief 领养申请
  */
+@Data
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AdoptionApplication {
-    public enum Status {
-        // 待审核
-        PENDING,
-        // 已通过
-        ACCEPTED,
-        // 已拒绝
-        REJECTED
-    }
-
     /**
      * 领养申请 uuid
      */
@@ -28,14 +25,14 @@ public class AdoptionApplication {
     /**
      * 申请状态
      */
-    private Status status;
+    private ApplicationStatus status;
 
     /**
      * 审核信息，为空表示还未审核
      */
     private Review review;
 
-    AdoptionApplication(String applicatorId, String petId, Status status, Review review) {
+    AdoptionApplication(String applicatorId, String petId, ApplicationStatus status, Review review) {
         this.id = java.util.UUID.randomUUID().toString();
         this.applicatorId = applicatorId;
         this.petId = petId;
@@ -43,45 +40,20 @@ public class AdoptionApplication {
         this.review = review;
     }
 
-    AdoptionApplication(String applicatorId, String petId) {
-        this(applicatorId, petId, Status.PENDING, null);
+    public AdoptionApplication(String applicatorId, String petId) {
+        this(applicatorId, petId, ApplicationStatus.PENDING, null);
     }
 
-    public String getId() {
-        return id;
+    public static AdoptionApplication createFromDatabase(String id, String applicatorId, String petId, ApplicationStatus status, Review review) {
+        return AdoptionApplication.builder()
+                .id(id)
+                .applicatorId(applicatorId)
+                .petId(petId)
+                .status(status)
+                .review(review)
+                .build();
     }
 
-    public String getApplicatorId() {
-        return applicatorId;
-    }
-
-    public void setApplicatorId(String applicatorId) {
-        this.applicatorId = applicatorId;
-    }
-
-    public String getPetId() {
-        return petId;
-    }
-
-    public void setPetId(String petId) {
-        this.petId = petId;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public Review getReview() {
-        return review;
-    }
-
-    public void setReview(Review review) {
-        this.review = review;
-    }
 
     public String toString() {
         return String.format("{id=%s,applicatorId=%s,petId=%s,status=%s,review={%s}}",
@@ -91,6 +63,9 @@ public class AdoptionApplication {
     /**
      * 审核信息
      */
+    @Data
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Review {
         /**
          * 审核员 id
@@ -111,16 +86,13 @@ public class AdoptionApplication {
             this.time = System.currentTimeMillis();
         }
 
-        public String getAdminId() {
-            return adminId;
+        public static Review createFromDatabase(String adminId, String comment, long time) {
+            return Review.builder()
+                    .adminId(adminId)
+                    .comment(comment)
+                    .time(time)
+                    .build();
         }
 
-        public String getComment() {
-            return comment;
-        }
-
-        public long getTime() {
-            return time;
-        }
     }
 }

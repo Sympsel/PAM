@@ -1,101 +1,80 @@
 package common.entity;
 
+import common.enums.PetSpecies;
+import common.enums.PetStatus;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+
+
+@Data
+@AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@Builder
 public class Pet {
-    public enum Specie {
-        Cat,
-        Dog,
-        Other
-    }
 
-    public enum AdoptionStatus {
-        Waiting,
-        Adopted,
-        UnAdoptable
-    }
+    /**
+     * 宠物 UUID
+     */
+    private String id;
 
-    public enum Gender {
-
-    }
-
-    private final String id;
+    /**
+     * 宠物名称
+     */
     private String name;
-    private Specie specie;
-    private int age;
-    // 健康状态描述
-    private String healthStatus;
-    private AdoptionStatus adoptionStatus;
-    private String description;
-    // 创建时间戳
-    private final long createTime;
 
-    public Pet(String name, Specie specie, int age, String healthStatus, AdoptionStatus adoptionStatus, String description) {
+    /**
+     * 物种
+     */
+    private PetSpecies specie;
+
+    /**
+     * 年龄
+     */
+    private int age;
+
+    /**
+     * 描述
+     */
+    private String description;
+
+    /**
+     * 领养状态
+     */
+    private PetStatus adoptionStatus;
+
+    /**
+     * 创建时间戳
+     */
+    private long createTime;
+
+    /**
+     * 构造函数（id 和 createTime 由系统生成）
+     */
+    public Pet(String name, PetSpecies specie, int age, String description, PetStatus adoptionStatus) {
         this.id = java.util.UUID.randomUUID().toString();
         this.name = name;
         this.specie = specie;
         this.age = age;
-        this.healthStatus = healthStatus;
-        this.adoptionStatus = adoptionStatus;
         this.description = description;
+        this.adoptionStatus = adoptionStatus != null ? adoptionStatus : PetStatus.AVAILABLE;
         this.createTime = System.currentTimeMillis();
     }
 
-    public Pet(String name, Specie specie, int age, String healthStatus, AdoptionStatus adoptionStatus) {
-        this(name, specie, age, healthStatus, adoptionStatus, "");
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Specie getSpecie() {
-        return specie;
-    }
-
-    public void setSpecie(Specie specie) {
-        this.specie = specie;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public String getHealthStatus() {
-        return healthStatus;
-    }
-
-    public void setHealthStatus(String healthStatus) {
-        this.healthStatus = healthStatus;
-    }
-
-    public AdoptionStatus getAdoptionStatus() {
-        return adoptionStatus;
-    }
-
-    public void setAdoptionStatus(AdoptionStatus adoptionStatus) {
-        this.adoptionStatus = adoptionStatus;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public long getCreateTime() {
-        return createTime;
+    /**
+     * 从数据库记录创建 Pet 对象
+     *
+     * @warn 仅供 DAO 层使用
+     */
+    public static Pet createFromDatabase(String id, String name, PetSpecies specie, int age,
+                                         String description, PetStatus adoptionStatus, long createTime) {
+        return Pet.builder()
+                .id(id)
+                .name(name)
+                .specie(specie)
+                .age(age)
+                .description(description)
+                .adoptionStatus(adoptionStatus)
+                .createTime(createTime)
+                .build();
     }
 }
