@@ -1,6 +1,7 @@
 package common.entity;
 
 
+import common.manager.UserManager;
 import common.utils.StringFormatter;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -52,16 +53,22 @@ public class Announcement {
         return StringFormatter.escapeAndTruncate(content, 100);
     }
 
+    private String getSenderName() {
+        if (senderId == null || senderId.isEmpty()) {
+            return "未知";
+        }
+        User sender = UserManager.getInstance().getUserById(senderId);
+        return sender != null ? sender.getUsername() : "未知用户";
+    }
+
     /**
      *
      * @return 格式化字符串
      */
     public String getDisplayString() {
-        return title + "\n" +
-                "\tID: " + id + "\n" +
-                "\t发布者: " + senderId + "\n" +
-                "\t发布时间: " + StringFormatter.timeStampToString(createTime) + "\n" +
-                "\t内容:\n" + (content != null ? content : "无");
+        return String.format("%s\n\tID：%s\n\t发布者：{%s\tID：%s}\n\t发布时间：%s\n\t内容：\n%s\n",
+                title, id, getSenderName(), senderId, StringFormatter.timeStampToString(createTime), getShortContent()
+        );
     }
 
     /**
@@ -69,10 +76,8 @@ public class Announcement {
      * @return 格式化字符串
      */
     public String getShortDisplayString() {
-        return title + "\n" +
-                "\tID: " + id + "\n" +
-                "\t发布者: " + senderId + "\n" +
-                "\t发布时间: " + StringFormatter.timeStampToString(createTime) + "\n" +
-                "\t内容:\n" + (content != null ? getShortContent() : "无");
+        return String.format("%s\n\tID：%s\n\t发布者：{%s\tID：%s}\n\t发布时间：%s\n\t内容：%s\n",
+                title, id, getSenderName(), senderId, StringFormatter.timeStampToString(createTime), getContent()
+        );
     }
 }

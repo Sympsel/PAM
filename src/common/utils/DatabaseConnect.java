@@ -10,9 +10,9 @@ public class DatabaseConnect {
      */
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(
-                DatabaseConfig.JDBC_URL,
-                DatabaseConfig.DB_USER,
-                DatabaseConfig.DB_PASSWORD
+                Config.JDBC_URL,
+                Config.DB_USER,
+                Config.DB_PASSWORD
         );
     }
 }

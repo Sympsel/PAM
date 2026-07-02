@@ -1,0 +1,36 @@
+{
+  "font": "JetBrainsMono",
+  "testMode": false,
+  "database": {
+    "DB": {
+      "databaseType": "mariadb",
+      "comment-databaseType": "linux填mariadb，windows填mysql",
+      "host": "localhost",
+      "port": 3306,
+      "name": "pam_db"
+    },
+    "Connect": {
+      "user": "root",
+      "password": "Zx123434678.",
+      "maxConnect": 3,
+      "timeout": 5000,
+      "comment-timeout": "连接超时：毫秒"
+    }
+  },
+  "validator": {
+    "password": {
+      "minLength": 6,
+      "maxLength": 20,
+      "requireLetter": true,
+      "requireDigit": true,
+      "requireSpecial": false
+    },
+    "password-comment": "6 <= 密码长度 <= 20，是否需要字母，是否需要数字，是否需要特殊字符",
+    "username": {
+      "minLength": 3,
+      "maxLength": 20,
+      "allowUnderscore": true
+    },
+    "username-comment": "4 <= 用户名长度 <= 20"
+  }
+}

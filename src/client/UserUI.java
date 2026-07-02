@@ -1,17 +1,20 @@
 package client;
 
+import client.utils.InputFrame;
 import common.entity.AdoptionApplication;
 import common.entity.Announcement;
 import common.entity.Pet;
 import common.entity.User;
+import common.utils.Config;
 import common.utils.StringFormatter;
 import server.api.ServerApi;
 import common.dto.response.Result;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
+
+import static client.utils.Utils.addAll;
 
 public class UserUI extends JFrame {
     private final ServerApi api = new ServerApi();
@@ -26,14 +29,14 @@ public class UserUI extends JFrame {
     }
 
     private void initializeUI() {
-        setTitle("宠物领养系统 - 用户端 - 丑就丑，时间紧任务重，将就着用");
+        setTitle("宠物领养系统 - 用户端");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(900, 700);
         setLocationRelativeTo(null);
 
         displayArea = new JTextArea();
         displayArea.setEditable(false);
-        displayArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        displayArea.setFont(new Font(Config.FONT, Font.PLAIN, 14));
         JScrollPane scrollPane = new JScrollPane(displayArea);
 
         setJMenuBar(createMenuBar());
@@ -85,19 +88,7 @@ public class UserUI extends JFrame {
                 addAll(accountMenu, logout, deleteAccount));
     }
 
-    private JMenu addAll(JMenu menu, JMenuItem... menuItems) {
-        for (JMenuItem menuItem : menuItems) {
-            menu.add(menuItem);
-        }
-        return menu;
-    }
 
-    private JMenuBar addAll(JMenuBar menuBar, JMenu... menus) {
-        for (JMenu menu : menus) {
-            menuBar.add(menu);
-        }
-        return menuBar;
-    }
 
     private void showProfile() {
         Result<User> result = api.getUserById(userId);
@@ -210,34 +201,20 @@ public class UserUI extends JFrame {
     }
 
     private void showLoginDialog() {
-        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        JTextField usernameField = new JTextField(20);
-        JPasswordField passwordField = new JPasswordField(20);
-
-        usernameField.setPreferredSize(new Dimension(200, 30));
-        passwordField.setPreferredSize(new Dimension(200, 30));
-
-        JLabel userLabel = new JLabel("用户名：");
-        JLabel passLabel = new JLabel("密码：");
-        // 我系统里没有“微软雅黑”，使用系统默认字体
-        userLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-        passLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-
-        panel.add(userLabel);
-        panel.add(usernameField);
-        panel.add(passLabel);
-        panel.add(passwordField);
+        InputFrame inputFrame = new InputFrame(0.5);
+        inputFrame.addInputField("用户名：", "")
+                .addPasswordField("密码：", "");
+        JPanel panel = inputFrame.buildPanel();
 
         Object[] options = {"登录", "注册", "取消"};
         int result = JOptionPane.showOptionDialog(this, panel, "用户登录",
                 JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
                 null, options, options[0]);
 
-        if (result == 0) { // 登录
-            String username = usernameField.getText().trim();
-            String password = new String(passwordField.getPassword());
+        if (result == 0) {
+            String[] values = inputFrame.getFieldValues();
+            String username = values[0].trim();
+            String password = values[1].trim();
 
             if (username.isEmpty() || password.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "用户名和密码不能为空",
@@ -275,62 +252,28 @@ public class UserUI extends JFrame {
     }
 
     private void showRegisterDialog() {
-        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
+        InputFrame inputFrame = new InputFrame(0.3);
+        inputFrame.addInputField("用户名：", String.format("请输入用户名，长度在%d-%d之间"
+                , Config.UsernameRules.MIN_LENGTH, Config.UsernameRules.MAX_LENGTH))
+                .addPasswordField("密码：", "包含字母、数字")
+                .addPasswordField("确认密码：", "")
+                .addInputField("姓名：", "选填")
+                .addInputField("手机号：", "11位、选填")
+                .addInputField("地址：", "选填");
+        inputFrame.add(inputFrame.buildPanel());
+        JPanel panel = inputFrame.buildPanel();
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        JTextField usernameField = new JTextField(20);
-        JPasswordField passwordField = new JPasswordField(20);
-        JPasswordField confirmPasswordField = new JPasswordField(20);
-        JTextField realNameField = new JTextField(20);
-        JTextField phoneField = new JTextField(20);
-        JTextField addressField = new JTextField(20);
-
-        Dimension fieldSize = new Dimension(200, 30);
-        usernameField.setPreferredSize(fieldSize);
-        passwordField.setPreferredSize(fieldSize);
-        confirmPasswordField.setPreferredSize(fieldSize);
-        realNameField.setPreferredSize(fieldSize);
-        phoneField.setPreferredSize(fieldSize);
-        addressField.setPreferredSize(fieldSize);
-
-        JLabel userLabel = new JLabel("用户名：");
-        JLabel passLabel = new JLabel("密码：");
-        JLabel confirmPassLabel = new JLabel("确认密码：");
-        JLabel realNameLabel = new JLabel("姓名（可选）：");
-        JLabel phoneLabel = new JLabel("手机号（可选）：");
-        JLabel addressLabel = new JLabel("地址（可选）：");
-
-        Font labelFont = new Font("微软雅黑", Font.PLAIN, 14);
-        userLabel.setFont(labelFont);
-        passLabel.setFont(labelFont);
-        confirmPassLabel.setFont(labelFont);
-        realNameLabel.setFont(labelFont);
-        phoneLabel.setFont(labelFont);
-        addressLabel.setFont(labelFont);
-
-        panel.add(userLabel);
-        panel.add(usernameField);
-        panel.add(passLabel);
-        panel.add(passwordField);
-        panel.add(confirmPassLabel);
-        panel.add(confirmPasswordField);
-        panel.add(realNameLabel);
-        panel.add(realNameField);
-        panel.add(phoneLabel);
-        panel.add(phoneField);
-        panel.add(addressLabel);
-        panel.add(addressField);
-
         int result = JOptionPane.showConfirmDialog(this, panel, "用户注册",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
-            String username = usernameField.getText().trim();
-            String password = new String(passwordField.getPassword());
-            String confirmPassword = new String(confirmPasswordField.getPassword());
-            String realName = realNameField.getText().trim();
-            String phone = phoneField.getText().trim();
-            String address = addressField.getText().trim();
+            String[] values = inputFrame.getFieldValues();
+            String username = values[0].trim();
+            String password = values[1];
+            String confirmPassword = values[2];
+            String realName = values[3].trim();
+            String phone = values[4].trim();
+            String address = values[5].trim();
 
             if (username.isEmpty() || password.isEmpty()) {
                 showError("用户名和密码不能为空");
@@ -589,6 +532,17 @@ public class UserUI extends JFrame {
     }
 
     public static void main(String[] args) {
+//        FlatLightLaf.install();
+//        try {
+//            UIManager.setLookAndFeel(new FlatDarkLaf());
+//        } catch(Exception ex) {
+//            System.err.println("Failed to initialize LaF");
+//        }
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ex) {
+            System.err.println("Failed to initialize system Look and Feel");
+        }
         SwingUtilities.invokeLater(() -> {
             new UserUI().setVisible(true);
         });

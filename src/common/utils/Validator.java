@@ -1,90 +1,50 @@
 package common.utils;
 
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 @Slf4j
 public class Validator {
 
-    private static final Config CONFIG = loadConfig();
-    private static final Pattern PHONE_PATTERN =
-        Pattern.compile("^1[3-9]\\d{9}$");
 
-    private static Config loadConfig() {
-        try (InputStream is = Validator.class.getClassLoader()
-                .getResourceAsStream("config/validator.json")) {
-            if (is == null) {
-                return new Config();
-            }
-            return new Gson().fromJson(
-                    new InputStreamReader(is, StandardCharsets.UTF_8), Config.class);
-        } catch (Exception e) {
-            log.warn("无法加载验证器配置文件");
-            return new Config();
-        }
-    }
+    private static final Pattern PHONE_PATTERN =
+            Pattern.compile("^1[3-9]\\d{9}$");
 
     public static boolean isValidPhone(String phone) {
-        if (CONFIG.testMode) {
+        if (Config.TEST_MODE) {
             return phone != null;
         }
-        return phone != null  && PHONE_PATTERN.matcher(phone).matches();
+        return phone != null && PHONE_PATTERN.matcher(phone).matches();
     }
 
     public static boolean isValidUsername(String username) {
         if (username == null) return false;
         int len = username.length();
-        if (len < CONFIG.username.minLength || len > CONFIG.username.maxLength) {
+        if (len < Config.UsernameRules.MIN_LENGTH || len > Config.UsernameRules.MAX_LENGTH) {
             return false;
         }
-        String pattern = CONFIG.username.allowUnderscore
+        String pattern = Config.UsernameRules.ALLOW_UNDERSCORE
                 ? "^[a-zA-Z0-9_]+$" : "^[a-zA-Z0-9]+$";
         return Pattern.matches(pattern, username);
     }
 
     public static boolean isValidPassword(String password) {
-        if (CONFIG.testMode) {
+        if (Config.TEST_MODE) {
             return true;
         }
         if (password == null) return false;
 
         int len = password.length();
-        if (len < CONFIG.password.minLength || len > CONFIG.password.maxLength) {
+        if (len < Config.PasswordRules.MIN_LENGTH || len > Config.PasswordRules.MAX_LENGTH) {
             return false;
         }
-        if (CONFIG.password.requireLetter && !password.matches(".*[a-zA-Z].*")) {
+        if (Config.PasswordRules.REQUIRE_LETTER && !password.matches(".*[a-zA-Z].*")) {
             return false;
         }
-        if (CONFIG.password.requireDigit && !password.matches(".*\\d.*")) {
+        if (Config.PasswordRules.REQUIRE_DIGIT && !password.matches(".*\\d.*")) {
             return false;
         }
-        return !CONFIG.password.requireSpecial || password.matches(".*[^a-zA-Z0-9].*");
-    }
-
-    private static class Config {
-        boolean testMode = true;
-        PasswordConfig password = new PasswordConfig();
-        UsernameConfig username = new UsernameConfig();
-    }
-
-    private static class PasswordConfig {
-        // 默认配置
-        int minLength = 6;
-        int maxLength = 20;
-        boolean requireLetter = true;
-        boolean requireDigit = true;
-        boolean requireSpecial = false;
-    }
-
-    private static class UsernameConfig {
-        // 默认配置
-        int minLength = 4;
-        int maxLength = 20;
-        boolean allowUnderscore = true;
+        return !Config.PasswordRules.REQUIRE_SPECIAL || password.matches(".*[^a-zA-Z0-9].*");
     }
 }
