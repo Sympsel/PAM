@@ -48,7 +48,6 @@ public class AdoptionApplicationManager {
      * @return 申请ID，失败返回null
      */
     public String submitApplication(String applicatorId, String petId) {
-        // 参数验证
         if (applicatorId == null || applicatorId.trim().isEmpty()) {
             log.warn("提交失败：申请人ID为空");
             return null;
@@ -59,16 +58,13 @@ public class AdoptionApplicationManager {
             return null;
         }
 
-        // 检查是否已经提交过申请
         if (applicationDAO.hasApplied(applicatorId, petId)) {
             log.warn("提交失败：用户已为该宠物提交过申请: {} -> {}", applicatorId, petId);
-            return null;
+            throw new IllegalStateException("DUPLICATE_APPLICATION");
         }
 
-        // 创建申请对象
         AdoptionApplication application = new AdoptionApplication(applicatorId, petId);
 
-        // 保存到数据库
         boolean success = applicationDAO.save(application);
         if (success) {
             log.info("申请提交成功: {} by user {}", application.getId(), applicatorId);

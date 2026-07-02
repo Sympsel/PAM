@@ -7,6 +7,8 @@ import common.manager.AdoptionApplicationManager;
 import common.dto.response.Result;
 import common.exception.BusinessException;
 import common.manager.UserManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -15,6 +17,7 @@ import java.util.List;
  * 提供领养申请相关的业务服务，封装 Manager 层
  */
 public class AdoptionApplicationService {
+    private static final Logger logger = LoggerFactory.getLogger(AdoptionApplicationService.class);
 
     private final AdoptionApplicationManager applicationManager;
 
@@ -22,35 +25,6 @@ public class AdoptionApplicationService {
         this.applicationManager = AdoptionApplicationManager.getInstance();
     }
 
-    /**
-     * 提交领养申请（普通用户）
-     *
-     * @param userId 用户ID
-     * @param petId  宠物ID
-     * @return 操作结果
-     */
-    public Result<String> submitApplication(String userId, String petId) {
-        try {
-            // 1. 验证参数
-            if (userId == null || userId.trim().isEmpty()) {
-                return Result.error("用户ID不能为空");
-            }
-            if (petId == null || petId.trim().isEmpty()) {
-                return Result.error("宠物ID不能为空");
-            }
-
-            // 2. 调用 Manager 层提交申请
-            String applicationId = applicationManager.submitApplication(userId, petId);
-
-            if (applicationId != null) {
-                return Result.success(applicationId);
-            } else {
-                return Result.error("您已为该宠物提交过申请或提交失败");
-            }
-        } catch (Exception e) {
-            return Result.error("系统错误: " + e.getMessage());
-        }
-    }
 
     /**
      * 通过申请（管理员）
@@ -262,16 +236,65 @@ public class AdoptionApplicationService {
      * 验证管理员权限
      */
     private void validateAdminPermission(String userId) throws BusinessException {
-         User user = UserManager.getInstance().getUserById(userId);
-         if (user == null || user.getPermission() != Permission.ADMIN) {
-             throw new BusinessException(403, "无权限执行此操作");
-         }
+        User user = UserManager.getInstance().getUserById(userId);
+        if (user == null || user.getPermission() != Permission.ADMIN) {
+            throw new BusinessException(403, "无权限执行此操作");
+        }
+    }
+
+
+    public Result<List<AdoptionApplication>> getApplicationsByApplicator(String userId) {
+        try {
+            List<AdoptionApplication> application = applicationManager.getByApplicator(userId);
+            if (application == null) {
+                return Result.error("申请不存在");
+            }
+            return Result.success(application);
+        } catch (Exception e) {
+            return Result.error("查询申请失败: " + e.getMessage());
+        }
     }
 
     /**
-         * 申请统计数据
-         */
+     * 提交领养申请（普通用户）
+     *
+     * @param userId 用户ID
+     * @param petId  宠物ID
+     * @return 操作结果
+     */
 
+    public Result<String> submitApplication(String userId, String petId) {
+        try {
+            if (userId == null || userId.trim().isEmpty()) {
+                return Result.error("用户ID不能为空");
+            }
+            if (petId == null || petId.trim().isEmpty()) {
+                return Result.error("宠物ID不能为空");
+            }
+
+            String applicationId = applicationManager.submitApplication(userId, petId);
+
+            if (applicationId != null) {
+                return Result.success("申请提交成功，申请ID: " + applicationId);
+            } else {
+                return Result.error("申请提交失败，请稍后重试");
+            }
+        } catch (IllegalStateException e) {
+            if ("DUPLICATE_APPLICATION".equals(e.getMessage())) {
+                return Result.error("您已为该宠物提交过申请，请勿重复提交");
+            }
+            logger.warn("提交申请异常: {}", e.getMessage());
+            return Result.error("系统错误: " + e.getMessage());
+        } catch (Exception e) {
+            logger.error("提交申请失败: {}", e.getMessage());
+            return Result.error("申请提交失败: " + e.getMessage());
+        }
+    }
+
+
+    /**
+     * 申请统计数据
+     */
     public record ApplicationStatistics(int total, int pending, int approved, int rejected) {
     }
 }

@@ -203,6 +203,32 @@ public class UserService {
     }
 
     /**
+     * 用户注销账户
+     */
+    public Result<String> deleteAccount(String userId) {
+        try {
+            if (userId == null || userId.isEmpty()) {
+                return Result.error("用户ID不能为空");
+            }
+
+            User user = userManager.getUserById(userId);
+            if (user == null) {
+                return Result.error("用户不存在");
+            }
+
+            boolean success = userManager.deleteUser(userId);
+
+            if (success) {
+                return Result.success("账户 " + user.getUsername() + " 已注销");
+            } else {
+                return Result.error("账户注销失败");
+            }
+        } catch (Exception e) {
+            return Result.error("系统错误: " + e.getMessage());
+        }
+    }
+
+    /**
      * 修改密码
      *
      * @param userId      用户ID

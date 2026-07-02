@@ -47,6 +47,10 @@ public class UserManager {
      */
     public String register(String username, String password, Permission permission, User.Profile profile) {
         // 参数检验
+        if (!Validator.isValidPhone(profile.getPhone())) {
+            logger.warn("注册失败：手机号格式不正确: {}", profile.getPhone());
+            return null;
+        }
         if (!Validator.isValidUsername(username)) {
             logger.warn("注册失败：用户名格式不正确: {}", username);
             return null;

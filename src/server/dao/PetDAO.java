@@ -3,13 +3,14 @@ package server.dao;
 import common.entity.Pet;
 import common.enums.PetSpecies;
 import common.enums.PetStatus;
-import common.manager.AdoptionApplicationManager;
-import config.DatabaseConfig;
 
 import java.sql.*;
 import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static common.utils.DatabaseConnect.getConnection;
 
 /**
  * 宠物数据访问对象
@@ -17,14 +18,6 @@ import org.slf4j.LoggerFactory;
 public class PetDAO implements BaseDAO<Pet, String> {
 
     private static final Logger logger = LoggerFactory.getLogger(PetDAO.class);
-
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(
-                DatabaseConfig.JDBC_URL,
-                DatabaseConfig.DB_USER,
-                DatabaseConfig.DB_PASSWORD
-        );
-    }
 
     /**
      * 保存宠物
@@ -37,7 +30,7 @@ public class PetDAO implements BaseDAO<Pet, String> {
         }
 
         String sql = "insert into pets (id, name, specie, age, description, adoption_status, create_time) " +
-                     "values (?, ?, ?, ?, ?, ?, ?)";
+                "values (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -120,7 +113,7 @@ public class PetDAO implements BaseDAO<Pet, String> {
         }
 
         String sql = "update pets set name = ?, specie = ?, age = ?, " +
-                     "description = ?, adoption_status = ? where id = ?";
+                "description = ?, adoption_status = ? where id = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

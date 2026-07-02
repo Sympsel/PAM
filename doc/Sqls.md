@@ -91,3 +91,18 @@ create table if not exists adoption_applications
   default charset = utf8mb4 comment = '领养申请表';
 describe adoption_applications;
 ```
+
+## 添加管理员
+
+```mysql
+-- 需要使用管理员密码生成工具，得到密文密码，否则得到的账户无法登录
+insert into users (id, username, password_hash, permission, real_name, phone, address, is_online, create_time)
+values (uuid(), 'sympsel', '+I9dyZg11uquOSdd8q3QTTsTkKDwE0WWphUw3OTfU1E=', 'admin', '赵轩', '13500047303',
+        '河南财经政法大学', FALSE, unix_timestamp() * 1000);
+
+```
+
+## 添加测试数据 - AI生成
+
+* doc/pets.sql
+* doc/announcements.sql

@@ -1,4 +1,5 @@
 import client.AdminClient;
+import client.UserClient;
 import common.entity.User;
 import common.manager.UserManager;
 import org.jline.reader.EndOfFileException;
@@ -15,13 +16,19 @@ public class Main {
 //        demo2();
 //        demoJLine();
 //        demo3();
-        demo4();
+//        demoAdminClient();
+        demoUserClient();
+    }
+
+    private static void demoAdminClient() {
+        AdminClient adminClient = new AdminClient();
+        adminClient.start();
     }
 
 
-    private static void demo4() {
-        AdminClient adminClient = new AdminClient();
-        adminClient.start();
+    private static void demoUserClient() {
+        UserClient userClient = new UserClient();
+        userClient.start();
     }
 
 //    private static void demo3() {

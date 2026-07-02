@@ -15,6 +15,7 @@ public class Menu {
     private final List<MenuItem> items;
     private final LineReader reader;
     private final Terminal terminal;
+    private boolean running = true;
 
     /**
      * 构造函数
@@ -49,7 +50,14 @@ public class Menu {
      * @return 当前菜单对象（链式调用）
      */
     public Menu addBackItem() {
-        return addItem(0, "返回上级菜单", null);
+        return addItem(0, "返回上级菜单", () -> running = false);
+    }
+
+    /**
+     * 停止菜单循环
+     */
+    public void stop() {
+        running = false;
     }
 
     /**
@@ -96,7 +104,7 @@ public class Menu {
                         return false; // 返回上级
                     }
                     item.execute();
-                    return true; // 继续显示当前菜单
+                    return running; // 根据 running 标志决定是否继续
                 }
             }
 
@@ -115,9 +123,10 @@ public class Menu {
      * 循环显示菜单直到用户选择退出
      */
     public void run() {
+        running = true;
         do {
             display();
-        } while (promptAndExecute());
+        } while (promptAndExecute() && running);
     }
 
     /**

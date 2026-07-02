@@ -2,12 +2,14 @@ package server.dao;
 
 import common.entity.User;
 import common.enums.Permission;
-import config.DatabaseConfig;
 
 import java.sql.*;
 import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static common.utils.DatabaseConnect.getConnection;
 
 /**
  * 用户数据访问对象
@@ -16,17 +18,6 @@ import org.slf4j.LoggerFactory;
 public class UserDAO implements BaseDAO<User, String> {
 
     private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
-
-    /**
-     * 获取数据库连接
-     */
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(
-                DatabaseConfig.JDBC_URL,
-                DatabaseConfig.DB_USER,
-                DatabaseConfig.DB_PASSWORD
-        );
-    }
 
     /**
      * 保存新用户
@@ -87,7 +78,7 @@ public class UserDAO implements BaseDAO<User, String> {
         }
         String sql = "select * from users where id = ?";
         try (Connection conn = getConnection();
-        PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {

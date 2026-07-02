@@ -1,7 +1,6 @@
 package server.dao;
 
 import common.entity.Announcement;
-import config.DatabaseConfig;
 
 import java.sql.*;
 import java.util.*;
@@ -9,20 +8,14 @@ import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static common.utils.DatabaseConnect.getConnection;
+
 /**
  * 公告数据访问对象
  */
 public class AnnouncementDAO implements BaseDAO<Announcement, String> {
 
     private static final Logger logger = LoggerFactory.getLogger(AnnouncementDAO.class);
-
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(
-                DatabaseConfig.JDBC_URL,
-                DatabaseConfig.DB_USER,
-                DatabaseConfig.DB_PASSWORD
-        );
-    }
 
     /**
      * 保存公告

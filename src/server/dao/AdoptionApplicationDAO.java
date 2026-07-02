@@ -3,12 +3,15 @@ package server.dao;
 import common.entity.AdoptionApplication;
 import common.entity.AdoptionApplication.Review;
 import common.enums.ApplicationStatus;
-import config.DatabaseConfig;
 
 import java.sql.*;
 import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+
+import static common.utils.DatabaseConnect.getConnection;
 
 /**
  * 领养申请数据访问对象
@@ -16,14 +19,6 @@ import org.slf4j.LoggerFactory;
 public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, String> {
 
     private static final Logger logger = LoggerFactory.getLogger(AdoptionApplicationDAO.class);
-
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(
-                DatabaseConfig.JDBC_URL,
-                DatabaseConfig.DB_USER,
-                DatabaseConfig.DB_PASSWORD
-        );
-    }
 
     /**
      * 保存领养申请
@@ -36,7 +31,7 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
         }
 
         String sql = "insert into adoption_applications (id, applicator_id, pet_id, status) " +
-                     "values (?, ?, ?, ?)";
+                "values (?, ?, ?, ?)";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -116,7 +111,7 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
         }
 
         String sql = "update adoption_applications set status = ?, admin_id = ?, " +
-                     "comment = ?, review_time = ? where id = ?";
+                "comment = ?, review_time = ? where id = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -150,6 +145,7 @@ public class AdoptionApplicationDAO implements BaseDAO<AdoptionApplication, Stri
 
     /**
      * 删除指定申请人的所有申请
+     *
      * @param applicatorId 申请人ID
      * @return 删除的记录数
      */
