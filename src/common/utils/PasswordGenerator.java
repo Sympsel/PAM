@@ -30,7 +30,6 @@ public class PasswordGenerator {
                     return;
                 }
 
-                // 确认密码
                 String confirmPassword = reader.readLine("请再次输入密码: ", '*');
 
                 if (!password.equals(confirmPassword)) {

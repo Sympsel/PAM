@@ -9,6 +9,9 @@ import java.io.IOException;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.TerminalBuilder;
 
+/**
+ * 管理员客户端，无图形化界面
+ */
 public class AdminClient extends Client {
     private enum HandingStatus {
         Comment,
@@ -40,7 +43,11 @@ public class AdminClient extends Client {
                 .addItem(3, "公告管理", this::showAnnouncementMenu)
                 .addItem(4, "用户管理", this::showUserMenu)
                 .addItem(5, "系统统计", this::showStatisticsMenu)
-                .addItem(0, "退出登录", this::exit);
+                .addItem(6, "退出登录", () -> {
+                    logger.info("退出登录");
+                    status = Status.EXIT;
+                    mainMenu.stop();
+                });
         return mainMenu;
     }
 
@@ -157,7 +164,6 @@ public class AdminClient extends Client {
                 case ONLINE -> handle();
             }
         }
-        exit();
     }
 
     @Override

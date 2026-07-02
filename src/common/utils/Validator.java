@@ -73,6 +73,7 @@ public class Validator {
     }
 
     private static class PasswordConfig {
+        // 默认配置
         int minLength = 6;
         int maxLength = 20;
         boolean requireLetter = true;
@@ -81,6 +82,7 @@ public class Validator {
     }
 
     private static class UsernameConfig {
+        // 默认配置
         int minLength = 4;
         int maxLength = 20;
         boolean allowUnderscore = true;

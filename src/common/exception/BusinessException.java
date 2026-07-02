@@ -4,6 +4,10 @@ package common.exception;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ *
+ *  异常处理展示错误信息
+ */
 public class BusinessException extends Exception {
     @Getter
     @Setter

@@ -365,7 +365,7 @@ values (uuid(), 'admin', '加密后的密码', 'ADMIN', '管理员', false, unix
 
 ```txt
          用户名 / 密码
-管理员: admin / admin123
+管理员: admin / admin123  - 必须把validator.json里面的测试模式testMode打开才能登录，因为存的密码是未加密的
 普通用户: user / user123
 ```
 

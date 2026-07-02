@@ -88,14 +88,12 @@ public class AnnouncementManager {
      * @return 是否修改成功
      */
     public boolean update(String id, String title, String content) {
-        // 查询公告是否存在
         Announcement announcement = announcementDAO.findById(id);
         if (announcement == null) {
             log.warn("更新失败：公告不存在: {}", id);
             return false;
         }
 
-        // 参数验证
         if (title == null || title.trim().isEmpty()) {
             log.warn("更新失败：标题为空");
             return false;
@@ -106,11 +104,9 @@ public class AnnouncementManager {
             return false;
         }
 
-        // 更新字段
         announcement.setTitle(title.trim());
         announcement.setContent(content.trim());
 
-        // 保存到数据库
         boolean success = announcementDAO.update(announcement);
         if (success) {
             log.info("公告更新成功: {}", id);

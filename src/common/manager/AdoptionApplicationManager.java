@@ -27,7 +27,7 @@ public class AdoptionApplicationManager {
     }
 
     /**
-     * 获取单例实例（线程安全）
+     * 获取单例实例
      */
     public static AdoptionApplicationManager getInstance() {
         if (instance == null) {

@@ -61,7 +61,7 @@ public class StringFormatter {
     }
 
     /**
-     * 转义并截断字符串（用于日志输出）
+     * 转义并截断字符串（用于日志输出，防止过长）
      *
      * @param str 原始字符串
      * @param maxLength 最大长度
@@ -73,17 +73,8 @@ public class StringFormatter {
     }
 
     /**
-     * 安全地获取字符串（null 转为空字符串）
-     *
-     * @param str 原始字符串
-     * @return 非空字符串
-     */
-    public static String safeString(String str) {
-        return str != null ? str : "";
-    }
-
-    /**
-     * 格式化多行文本为单行显示（用于日志）
+     * 格式化多行文本为单行显示（用于日志，比如换行转为\n）
+     * todo 应用它
      *
      * @param text 多行文本
      * @return 单行显示的文本

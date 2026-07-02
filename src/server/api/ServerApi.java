@@ -27,6 +27,8 @@ import java.util.List;
 
 /**
  *
+ * 服务的主体部分
+ *
  * todo 添加网络中间层，客户端发送HTTP请求到服务端调用服务端 api/*
  */
 public class ServerApi {
@@ -88,7 +90,7 @@ public class ServerApi {
     }
 
     /**
-     * 用户自我注销账户（无需管理员权限）
+     * 用户注销账户
      */
     public Result<String> deleteAccount(String userId) {
         try {
@@ -103,7 +105,7 @@ public class ServerApi {
     }
 
     /**
-     * 统一登录接口（管理员和普通用户共用）
+     * 统一登录接口
      */
     public Result<User> login(String username, String password) {
         if (username == null || username.trim().isEmpty()) {
@@ -170,6 +172,10 @@ public class ServerApi {
         return user;
     }
 
+    /**
+     * 未来会用到
+     * @throws BusinessException 抛出业务异常
+     */
     protected void checkAdmin(String userId) throws BusinessException {
         validateAdmin(userId);
     }
@@ -480,13 +486,18 @@ public class ServerApi {
 
 
     // =================== 用户管理
+
+    /**
+     * 删除用户，检查有管理员权限才能执行
+     *
+     * @param adminId 管理员id
+     */
     public void deleteUser(String adminId) {
         try {
-            User admin = validateAdmin(adminId);  // 统一验证
-            logger.info("管理员 {} 开始添加宠物", admin.getUsername());
+            User admin = validateAdmin(adminId);
+            logger.info("管理员 {} 添加宠物", admin.getUsername());
 
             beginShow("添加宠物");
-            // ... 业务逻辑
         } catch (BusinessException e) {
             System.out.println("权限验证失败: " + e.getMessage());
         }
@@ -1007,7 +1018,6 @@ public class ServerApi {
             System.out.println("\n【宠物统计】");
             System.out.println("  宠物总数: " + petCountResult.getData());
 
-            // 按状态统计
             Result<List<Pet>> allPets = petService.getAllPets();
             if (allPets.isSuccess()) {
                 long available = allPets.getData().stream()
@@ -1032,7 +1042,6 @@ public class ServerApi {
             logger.info("管理员 {} 开始添加宠物", admin.getUsername());
 
             beginShow("添加宠物");
-            // ... 业务逻辑
         } catch (BusinessException e) {
             System.out.println("权限验证失败: " + e.getMessage());
         }
@@ -1042,7 +1051,6 @@ public class ServerApi {
 
         boolean shouldEndShow = true;
         try {
-            // 读取标题
             while (title.isEmpty()) {
                 title = reader.readLine("请输入公告标题：");
                 if (title == null) {
@@ -1092,7 +1100,6 @@ public class ServerApi {
             }
             logger.info("公告内容输入结束");
 
-            // 调用 Service 层发布公告
             Result<String> result = announcementService.publishAnnouncement(adminId, title, content);
             if (result.isSuccess()) {
                 terminal.writer().println("公告发布成功！");
@@ -1230,7 +1237,6 @@ public class ServerApi {
             logger.info("管理员 {} 开始添加宠物", admin.getUsername());
 
             beginShow("添加宠物");
-            // ... 业务逻辑
         } catch (BusinessException e) {
             System.out.println("权限验证失败: " + e.getMessage());
         }
@@ -1260,7 +1266,6 @@ public class ServerApi {
             logger.info("管理员 {} 开始添加宠物", admin.getUsername());
 
             beginShow("添加宠物");
-            // ... 业务逻辑
         } catch (BusinessException e) {
             System.out.println("权限验证失败: " + e.getMessage());
         }
@@ -1278,13 +1283,11 @@ public class ServerApi {
             System.out.println("\n【用户统计】查询失败: " + userResult.getMessage());
         }
 
-        // 宠物统计
         Result<Integer> petCountResult = petService.getPetCount();
         if (petCountResult.isSuccess()) {
             System.out.println("\n【宠物统计】");
             System.out.println("\t宠物总数: " + petCountResult.getData());
 
-            // 按状态统计
             Result<List<Pet>> allPets = petService.getAllPets();
             if (allPets.isSuccess()) {
                 long available = allPets.getData().stream()
@@ -1301,7 +1304,6 @@ public class ServerApi {
             System.out.println("\n【宠物统计】查询失败: " + petCountResult.getMessage());
         }
 
-        // 申请统计
         Result<server.service.AdoptionApplicationService.ApplicationStatistics> appResult =
                 applicationService.getApplicationStatistics();
         if (appResult.isSuccess()) {

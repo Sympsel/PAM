@@ -144,7 +144,6 @@ public class UserUI extends JFrame {
             return;
         }
 
-        // 提取索引
         int index = Integer.parseInt(selection.substring(1, selection.indexOf("]"))) - 1;
         Announcement selectedAnnouncement = announcements.get(index);
 
@@ -222,6 +221,7 @@ public class UserUI extends JFrame {
 
         JLabel userLabel = new JLabel("用户名：");
         JLabel passLabel = new JLabel("密码：");
+        // 我系统里没有“微软雅黑”，使用系统默认字体
         userLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
         passLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
 
@@ -265,9 +265,11 @@ public class UserUI extends JFrame {
                         "错误", JOptionPane.ERROR_MESSAGE);
                 showLoginDialog();
             }
-        } else if (result == 1) { // 注册
+        } else if (result == 1) {
+            // 注册
             showRegisterDialog();
-        } else { // 取消
+        } else {
+            // 取消
             System.exit(0);
         }
     }

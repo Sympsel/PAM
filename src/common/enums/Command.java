@@ -1,5 +1,9 @@
 package common.enums;
 
+/**
+ *
+ * todo 未来开发方向之一，命令行代替选数字菜单页面
+ */
 public enum Command {
     // 用户相关
     LOGIN,

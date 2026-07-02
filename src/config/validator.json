@@ -7,9 +7,11 @@
         "requireDigit": true,
         "requireSpecial": false
     },
+    "password-comment": "6 <= 密码长度 <= 20，是否需要字母，是否需要数字，是否需要特殊字符",
     "username": {
         "minLength": 4,
         "maxLength": 20,
         "allowUnderscore": true
-    }
+    },
+    "username-comment": "4 <= 用户名长度 <= 20"
 }
